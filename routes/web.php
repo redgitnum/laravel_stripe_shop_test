@@ -1,6 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\LoginController;
+use App\Http\Controllers\ProductsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,4 +18,12 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
-});
+})->name('home');
+
+Route::get('/products', [ProductsController::class, 'index'])->name('products');
+Route::post('/products/{id}', [ProductsController::class, 'addItem'])->name('products.add');
+
+Route::get('/login', [LoginController::class, 'index'])->name('login')->middleware('guest');
+Route::get('/cart', [CartController::class, 'index'])->name('cart')->middleware('auth');
+Route::post('/login', [LoginController::class, 'login']);
+Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
