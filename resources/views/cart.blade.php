@@ -55,13 +55,14 @@
                         <div>{{ "$".number_format($total/100, 2) }}</div>
                     </span>
                 </div>
-                <div>
+                <form action="{{ route('cart.purchase') }}" method="POST" id="payment-form">
+                    @csrf
                     <input id="card-holder-name" type="text" value="{{ auth()->user()->name }}" disabled>
-                    
+                    <input type="hidden" name="total" value="{{ $total }}">
                     <!-- Stripe Elements Placeholder -->
                     <div id="card-element" style="display: flex; flex-direction:column; width:500px"></div>
                     
-                    <button type="button" id="card-button">
+                    <button type="submit" id="card-button">
                         Process Payment
                     </button>
                 </div>
@@ -70,7 +71,7 @@
         <script src="https://js.stripe.com/v3/"></script>
 
         <script>
-            const stripe = Stripe('pk_test_51ILQ11DlgbK83799ftvpEUU5kEilqrB0RtpUOu7QkHXtc7S1yGDExy3MNN9c2RQ7udzfhyslwBESh1Xsw7RzqMHd009lss6YxA');
+            const stripe = Stripe({{ env('STRIPE_KEY') }});
         
             const elements = stripe.elements();
             const cardElement = elements.create('card');
@@ -78,24 +79,33 @@
             cardElement.mount('#card-element');
 
             const cardHolderName = document.getElementById('card-holder-name');
-            const cardButton = document.getElementById('card-button');
+            const form = document.getElementById('payment-form');
 
-            cardButton.addEventListener('click', async (e) => {
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
                 const { paymentMethod, error } = await stripe.createPaymentMethod(
                     'card', cardElement, {
                         billing_details: { name: cardHolderName.value }
                     }
                 );
-
                 if (error) {
                     // Display "error.message" to the user...
-                   alert('Payment Denied!')
+                alert('Payment Denied!')
 
                 } else {
-                    console.log(paymentMethod.id)
-                    alert('Payment Successful!');
+                    handleForm(paymentMethod.id)
                 }
-            });
+            })
+
+            function handleForm(paymentId) {
+                var hiddenInput = document.createElement('input');
+                hiddenInput.setAttribute('type', 'hidden');
+                hiddenInput.setAttribute('name', 'stripeToken');
+                hiddenInput.setAttribute('value', paymentId);
+
+                form.appendChild(hiddenInput);
+                form.submit();
+            }
         </script>
     </body>
 </html>

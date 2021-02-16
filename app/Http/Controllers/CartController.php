@@ -35,6 +35,8 @@ class CartController extends Controller
 
     public function purchase(Request $request)
     {
-        dd($request);
+            $request->user()->charge($request->total, $request->stripeToken);
+            Cart::where('user_id', auth()->id())->delete();
+            return redirect()->route('home');
     }
 }
