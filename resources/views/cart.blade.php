@@ -19,6 +19,7 @@
                 font-family: 'Nunito';
             }
         </style>
+        
     </head>
     <body class="antialiased">
         <div class="relative flex items-top justify-center min-h-screen bg-gray-100 dark:bg-gray-900 sm:items-center sm:pt-0">
@@ -39,10 +40,62 @@
 
             <div class="bg-gray-900 p-2 rounded shadow-xl w-full">
                 <h1>Cart</h1>
-                @php
-                    dd($cart)
-                @endphp
+                @foreach($cart as $item)
+                <div style="border: 1px solid black; padding: 5px;">
+                    <div>{{ $item->name }}</div>
+                    <div>{{ "$".number_format($item->price/100, 2) }}</div>
+                    <form action="{{ route('cart.remove', $item->id) }}" method="POST">
+                        @csrf
+                        <button>REMOVE</button>
+                    </form>
+                </div>
+                @endforeach
+                <div style="text-align: right; padding: 5px;">Cart total:
+                    <span>
+                        <div>{{ "$".number_format($total/100, 2) }}</div>
+                    </span>
+                </div>
+                <div>
+                    <input id="card-holder-name" type="text" value="{{ auth()->user()->name }}" disabled>
+                    
+                    <!-- Stripe Elements Placeholder -->
+                    <div id="card-element" style="display: flex; flex-direction:column; width:500px"></div>
+                    
+                    <button type="button" id="card-button">
+                        Process Payment
+                    </button>
+                </div>
             </div>
         </div>
+        <script src="https://js.stripe.com/v3/"></script>
+
+        <script>
+            const stripe = Stripe('pk_test_51ILQ11DlgbK83799ftvpEUU5kEilqrB0RtpUOu7QkHXtc7S1yGDExy3MNN9c2RQ7udzfhyslwBESh1Xsw7RzqMHd009lss6YxA');
+        
+            const elements = stripe.elements();
+            const cardElement = elements.create('card');
+        
+            cardElement.mount('#card-element');
+
+            const cardHolderName = document.getElementById('card-holder-name');
+            const cardButton = document.getElementById('card-button');
+
+            cardButton.addEventListener('click', async (e) => {
+                const { paymentMethod, error } = await stripe.createPaymentMethod(
+                    'card', cardElement, {
+                        billing_details: { name: cardHolderName.value }
+                    }
+                );
+
+                if (error) {
+                    // Display "error.message" to the user...
+                   alert('Payment Denied!')
+
+                } else {
+                    console.log(paymentMethod.id)
+                    alert('Payment Successful!');
+                }
+            });
+        </script>
     </body>
 </html>

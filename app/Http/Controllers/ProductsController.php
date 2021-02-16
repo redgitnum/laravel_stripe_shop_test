@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Cart;
 use App\Models\Product;
 use Illuminate\Http\Request;
 
@@ -15,8 +16,12 @@ class ProductsController extends Controller
         ]);
     }
 
-    public function addItem($id)
+    public function addItem(Request $request)
     {
-        dd($id);
+        Cart::create([
+            'user_id' => auth()->id(),
+            'product_id' => $request->id
+        ]);
+        return back();
     }
 }

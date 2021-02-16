@@ -42,11 +42,12 @@
                 <h1>Products</h1>
                 <div class="border w-4/5" style="display:flex; flex-wrap:wrap; padding: 10px;">
                     @foreach($products as $product)
-                        <form action="{{ route('products.add', $product->id) }}" method="POST" style="border: 1px solid black; padding: 2px; margin-bottom: 5px;">
+                        <form action="{{ route('products.add') }}" method="POST" style="border: 1px solid black; padding: 2px; margin-bottom: 5px;">
                             @csrf
                             <span>{{ $product->name }}</span>
                             <div>{{ $product->description }}</div>
                             <div>{{ "$".number_format($product->price/100, 2) }}</div>
+                            <input type="hidden" name="id" value="{{ $product->id }}">
                             <button type="submit">Add to cart</button>
                         </form>
                     @endforeach

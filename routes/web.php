@@ -21,9 +21,13 @@ Route::get('/', function () {
 })->name('home');
 
 Route::get('/products', [ProductsController::class, 'index'])->name('products');
-Route::post('/products/{id}', [ProductsController::class, 'addItem'])->name('products.add');
+Route::post('/products', [ProductsController::class, 'addItem'])->name('products.add');
 
 Route::get('/login', [LoginController::class, 'index'])->name('login')->middleware('guest');
-Route::get('/cart', [CartController::class, 'index'])->name('cart')->middleware('auth');
 Route::post('/login', [LoginController::class, 'login']);
 Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
+
+Route::get('/cart', [CartController::class, 'index'])->name('cart')->middleware('auth');
+Route::post('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove')->middleware('auth');
+
+Route::post('/cart', [CartController::class, 'purchase'])->name('cart.purchase')->middleware('auth');
